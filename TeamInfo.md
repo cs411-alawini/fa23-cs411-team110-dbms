@@ -12,8 +12,8 @@
 | Member1     |   aaronk6@illinois.edu |
 | Member2     |       Andrew Daly      |
 | Member2     |  akdaly2@illinois.edu |
-| Member3     |                        |
-| Member3     |                        |
+| Member3     |          Arnav Rawat              |
+| Member3     |      arnavr3@illinois.edu          |
 
 ## Project Information
 
