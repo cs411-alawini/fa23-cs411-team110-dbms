@@ -1,13 +1,13 @@
 create table Users (
     UserID int primary key,
-    Username varchar(20),
-    UserPassword varchar(20),
-    UserRole varchar(10)
+    Username varchar(20) not null,
+    UserPassword varchar(20) not null,
+    UserRole varchar(10) default "Viewer"
 );
 
 create table Location (
     SiteNum int primary key,
-    CityCode int,
+    CountyCode int,
     StateCode int,
     City varchar(25),
     County varchar(25),
@@ -16,8 +16,9 @@ create table Location (
 
 create table SearchHistory (
     SearchID int primary key,
-    UserID int foreign key references Users(UserID) on delete cascade on update cascade,
-    SearchQuery varchar(64)
+    UserID int,
+    SearchQuery varchar(64),
+    foreign key (UserID) references Users(UserID) on delete cascade on update cascade
 );
 
 create table Review (
@@ -33,10 +34,11 @@ create table Review (
 
 create table Measurements (
     MeasurementID int primary key,
-    SiteNum int foreign key references Location(SiteNum) on delete restrict on update cascade,
+    SiteNum int,
     MeasureDate date,
     No2Mean decimal,
     O3Mean decimal,
     So2Mean decimal,
-    CoMean decimal
+    CoMean decimal,
+    foreign key (SiteNum) references Location(SiteNum) on delete restrict on update cascade
 );
