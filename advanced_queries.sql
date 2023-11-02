@@ -1,20 +1,19 @@
--- return table of number of monitoring sites per state >= 5
+-- return table of search queries for particular user
 
-select State, count(SiteNum)
-from Location
-group by State
-having count(SiteNum) >= 5;
+SELECT sh.SearchID, sh.SearchQuery
+FROM SearchHistory sh natural join Users u
+WHERE sh.UserID = (SELECT UserID FROM Users WHERE Username = ‘binchanrh’);
 
 -- Top 10 and bottom 10 NOMean (may be lower than 20 in count)
 
-((select City, County, NoMean
+((select City, County, No2Mean
 from Measurements natural join Location
-where CityCode = ccode and NoMean is not null
-order by Measured desc
+where City = “Phoenix” and No2Mean is not null
+order by No2Mean desc
 limit 10)
-union
-(select City, County, NoMean
+union all
+(select City, County, No2Mean
 from Measurements natural join Location
-where CityCode = ccode and NoMean is not null
-order by Measured asc
-limit 10) ) order by NoMean desc;
+where City = “Phoenix” and No2Mean is not null
+order by No2Mean
+limit 5) );
