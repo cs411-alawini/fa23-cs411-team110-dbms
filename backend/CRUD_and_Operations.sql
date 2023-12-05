@@ -28,6 +28,10 @@ select * from Measurements natural join Location where City = ?
 -- READ pollutant data records for a particular time/date range -> when user queries pollutant data by time/date, may be helpful for heatmap?
 select * from Measurements natural join Location where MeasureDate = ?
 
+-- Check for existence of username/password pair, if match return relevant info (username,password,userRole, if not return nothing)
+select userName
+
+
 -- CREATE Review -> when user clicks "write review" and types into textbox interface for a particular location
 insert into Reviews value(?,?,?,?,?,?)
 
@@ -50,3 +54,4 @@ insert into SearchHistory value(?,?,?)
 select * from SearchHistory where UserID = ?
 
 -- Advanced Operation (?)
+
