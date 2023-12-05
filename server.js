@@ -1,19 +1,22 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const fs = require('fs');
+const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
+const sqlFilePath = path.join(__dirname, 'backend', 'advanced_queries.sql');
+const sqlQuery = fs.readFileSync(sqlFilePath, 'utf-8');
 
 const db = mysql.createConnection({
   host: '35.202.76.109',
   user: 'smallpass',
-  password: "cloudsql01$%^",
+  password: 'cloudsql01$%^',
   database: 'pollutant_tracker',
 });
 
@@ -26,49 +29,40 @@ db.connect((err) => {
   }
 });
 
-app.get('/api/userQueries', (req, res) => {
-  const userQueriesQuery = 'CALL UserQueries();';
 
-  db.query(userQueriesQuery, (userQueriesErr, userQueriesResult) => {
-    if (userQueriesErr) {
-      console.error('Error executing user queries query:', userQueriesErr);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json(userQueriesResult[0]);
+app.get('/noMean', (req, res) => {
+  db.query('CALL NoMean()', (error, results) => {
+    if (error) {
+      console.error('Error calling NoMean stored procedure:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
+    const mergedResults = results[0];
+
+    res.json({ data: mergedResults });
   });
 });
 
-app.get('/api/noMean', (req, res) => {
-  const noMeanQuery = 'CALL NoMean();';
-
-  db.query(noMeanQuery, (noMeanErr, noMeanResult, fields) => {
-    if (noMeanErr) {
-      console.error('Error executing NO2 mean query:', noMeanErr);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      console.log(fields)
-      res.json(noMeanResult[0]);
-    }
-  });
-});
-
-app.get('/api/pollutantScore', (req, res) => {
+// TODO fix 
+app.get('/getPollutantScore', (req, res) => {
   const { formattedDate, cutoff } = req.query;
 
-  const pollutantScoreQuery = `
-    CALL GetPollutantScore('${formattedDate}', '${cutoff}', @citygrades);
-    SELECT @citygrades as cityGrades;
+  const sql = `
+    CALL GetPollutantScore('${formattedDate}', '${cutoff}', @chosenCities);
+    SELECT @chosenCities AS chosenCities;
   `;
 
-  db.query(pollutantScoreQuery, (pollutantScoreErr, pollutantScoreResult) => {
-    if (pollutantScoreErr) {
-      console.error('Error executing pollutant score query:', pollutantScoreErr);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      // Send the result as JSON response
-      res.json(pollutantScoreResult[1][0]);
+  db.query(sql, (error, results) => {
+    if (error) {
+      console.error('Error calling GetPollutantScore stored procedure:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
+
+    const chosenCities = results[1][0].chosenCities;
+
+    if (!chosenCities) {
+      return res.status(404).json({ error: 'No data found' });
+    }
+    res.json({ chosenCities });
   });
 });
 
