@@ -56,11 +56,15 @@ app.get("/api/userQueries", (req, res) => {
 
 // Given login -> username and password, return successful or not (I used post instead of get, idk if that's best?)
 app.post("/api/login", (req, res) => {
-  const { username, password } = req.body; // Extract properties 'username' and 'password' from request body
+  const {username: u , password: p} = req.body; // Extract properties 'username' and 'password' from request body
+
+  if (u === undefined || p === undefined) {
+    return res.status(400).json("Failed.")
+  }
 
   db.query(
     "SELECT Username FROM Users WHERE Username = ? AND UserPassword = ?",
-    [username, password],
+    [u, p],
     (error, results) => {
       if (error) {
         console.error(error);

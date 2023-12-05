@@ -68,7 +68,8 @@ function LoginBox({loginOpen, loginBox, setErr}) {
               <Button color="inherit" sx={{width: 1}} onClick={() => {
                 loginOpen(false);
                 (async () => {
-                  const response = await fetch("http://localhost:5000/api/login", {method: "POST", body: JSON.stringify(loginInfo)})
+                  let header = new Headers({"Content-Type": "application/json"})
+                  const response = await fetch("http://localhost:5000/api/login", {method: "POST", body: JSON.stringify(loginInfo), headers: header})
                   if (response.ok) {
                     setErr(2)
                   } else {
