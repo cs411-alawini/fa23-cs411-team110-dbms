@@ -1,7 +1,7 @@
 -- return table of search queries for particular user
 
 DELIMITER //
-create procedure UserQueries()
+create procedure if not exists UserQueries()
 begin
     SELECT sh.SearchID, sh.SearchQuery
     FROM SearchHistory sh natural join Users u
@@ -10,7 +10,7 @@ end //
 
 -- Top 10 and bottom 10 NOMean (may be lower than 20 in count)
 
-create procedure NoMean()
+create procedure if not exists NoMean()
 begin
     ((select City, County, No2Mean
     from Measurements natural join Location
@@ -27,7 +27,7 @@ end //
 
 -- Gets the cities (with sample size > 10) above a certain pollutant score, then returns them in a comma separated list: City,No2,o3,so2,co
 
-create procedure GetPollutantScore(in formattedDate varchar(10), in cutoff varchar(2), out chosenCities varchar(5012))
+create procedure if not exists GetPollutantScore(in formattedDate varchar(10), in cutoff varchar(2), out chosenCities varchar(5012))
 begin
     declare no2avg float; declare allno2avg float; declare allno2stddev float;
     declare o3avg float; declare allo3avg float; declare allo3stddev float;
@@ -101,8 +101,26 @@ begin
 end //
 DELIMITER ;
 
+DELIMITER //
+create trigger if not exists PollutantSpike after insert
+on Measurements for each row
+begin
+    declare no2avg float;
+    declare coavg float;
+    declare o3avg float;
+    declare so2avg float;
+    declare newkey int;
+    select max(ReviewID) + 1
+    into newkey
+    from Review;
 
--- create trigger PollutantSpike after insert
--- on Measurements for each row
---     declare no2avg float;
---     if (new.No2Mean - no2avg)
+    select avg(No2Mean), avg(CoMean), avg(O3Mean), avg(So2Mean)
+    into no2avg, coavg, o3avg, so2avg
+    from Location natural join Measurements
+    where City = (select City from Location where SiteNum = new.SiteNum);
+
+    if (new.No2Mean > no2avg + 8 or new.CoMean > coavg + 2 or new.O3Mean > o3avg + 2 or new.So2Mean > so2avg + 3)
+    then insert into Review values (newkey, 3011, "Pollutant Spike Detected", CURRENT_TIMESTAMP, new.SiteNum, CURRENT_DATE);
+    end if;
+end //
+DELIMITER ;

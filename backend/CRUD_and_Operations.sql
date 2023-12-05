@@ -50,3 +50,4 @@ insert into SearchHistory value(?,?,?)
 select * from SearchHistory where UserID = ?
 
 -- Advanced Operation (?)
+
