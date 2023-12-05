@@ -32,7 +32,7 @@ app.get("/api/userQueries", (req, res) => {
   db.query(userQueriesQuery, (userQueriesErr, userQueriesResult) => {
     if (userQueriesErr) {
       console.error("Error executing user queries query:", userQueriesErr);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" }); // NOTE: use return when we want to ensure END of execution
     } else {
       res.json(userQueriesResult[0]);
     }
@@ -46,7 +46,7 @@ app.get("/api/noMean", (req, res) => {
   db.query(noMeanQuery, (noMeanErr, noMeanResult, fields) => {
     if (noMeanErr) {
       console.error("Error executing NO2 mean query:", noMeanErr);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     } else {
       console.log(fields);
       res.json(noMeanResult[0]);
@@ -69,7 +69,7 @@ app.get("/api/pollutantScore", (req, res) => {
         "Error executing pollutant score query:",
         pollutantScoreErr
       );
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     } else {
       // Send the result as JSON response
       res.json(pollutantScoreResult[1][0]);
@@ -77,7 +77,7 @@ app.get("/api/pollutantScore", (req, res) => {
   });
 });
 
-// Given login -> username and password, return successful or not
+// Given login -> username and password, return successful or not (I used post instead of get, idk if that's best?)
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body; // Extract properties 'username' and 'password' from request body
 
@@ -87,15 +87,40 @@ app.post("/api/login", (req, res) => {
     (error, results) => {
       if (error) {
         console.error(error);
-        return res.status(500).send("Internal server error");
+        return res.status(500).json("Internal server error");
       }
-      // If empty we can assume username password combo is bad
+      // If empty we can assume username/password combo is bad
       if (results.length === 0) {
-        return res.status(401).send("Authentication failed");
+        return res.status(401).json("Authentication failed");
       }
 
       // Otherwise successful
-      res.send("Authentication successful");
+      res.json({ authentication: "Authentication successful" }); // Wrap in {} to make object?
+    }
+  );
+});
+
+// Read UserRole to decide whether to grant special user access (idk how this should be implemented on react side?)
+app.get("/api/user-role", (req, res) => {
+  const { username } = req.query; // Get from query
+  // Input validation
+  if (!username) {
+    return res.status(400).json({ error: "Username is required" });
+  }
+
+  db.query(
+    "SELECT UserRole FROM Users WHERE Username = ?",
+    [username],
+    (err, results) => {
+      if (err) {
+        console.error("Error executing UserRole Query:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      if (results.length === 0) {
+        // Empty set returned
+        return res.status(404).json({ error: "Username not found" });
+      }
+      res.json({ userRole: results[0].UserRole });
     }
   );
 });
