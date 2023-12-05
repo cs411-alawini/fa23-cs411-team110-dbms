@@ -28,10 +28,10 @@ function Page() {
       <LoginBox loginOpen={loginOpen} loginBox={loginBox} setErr={setLoginErr}/>
       <Snackbar open={loginErrState === 1} autoHideDuration={6000} onClose={handleClose}>
         <Alert severity="error">Login Attempt Failed</Alert>
-      </ Snackbar>
+      </Snackbar>
       <Snackbar open={loginErrState === 2} autoHideDuration={6000} onClose={handleClose}>
         <Alert severity="success">Logged In Successfully</Alert>
-      </ Snackbar>
+      </Snackbar>
     </>
   )
 }
@@ -46,14 +46,14 @@ function LoginBox({loginOpen, loginBox, setErr}) {
           <DialogContentText>Enter Credentials</DialogContentText>
           <Grid container sx={{width: 1}} spacing={2}>
             <Grid item xs={13}>
-              <TextField label="Username" id="username" type="text" sx={{width: 1}} onChange={(event: object) => {
+              <TextField label="Username" id="username" type="text" sx={{width: 1}} onChange={(event) => {
                 let up = loginInfo
                 loginInfo.username = event.target.value
                 infoChange(loginInfo)
               }} />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Password" id="password" type="password" sx={{width: 1}} onChange={(event: Object) => {
+              <TextField label="Password" id="password" type="password" sx={{width: 1}} onChange={(event) => {
                 let up = loginInfo
                 loginInfo.password = event.target.value
                 infoChange(loginInfo)
@@ -79,9 +79,9 @@ function LoginBox({loginOpen, loginBox, setErr}) {
                 Submit
               </Button>
             </Grid>
-          </ Grid>
-        </ DialogContent>
-      </ Dialog>
+          </Grid>
+        </DialogContent>
+      </Dialog>
   )
 }
 
