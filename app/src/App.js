@@ -389,6 +389,75 @@ function SearchHistory({username}) {
 
 }
 
+function MEdit() {
+  const [measurementInfo, setMeasurementInfo] = useState({SiteNum: null, No2Mean: null, O3Mean: null, So2Mean: null, CoMean: null})
+
+  return (
+    <Box sx={{justifyContent: "center", display: "flex"}}>
+      <Stack spacing={2} sx={{width: 0.5}}>
+        <Stack direction="row" spacing={2}>
+          <TextField label="Site Number" variant="standard" onChange={(ev) => {
+            let mi = structuredClone(measurementInfo); // what the hell, i thought measurementinfo was const
+            mi.SiteNum = ev.target.value
+            setMeasurementInfo(mi)
+          }} />
+          <TextField label="NO2 Mean" variant="standard" onChange={(ev) => {
+            let mi = structuredClone(measurementInfo);
+            if (ev.target.value.length == 0) {
+              mi.No2Mean = null
+            } else {
+              mi.No2Mean = ev.target.value
+            }
+            setMeasurementInfo(mi)
+          }} />
+          <TextField label="O3 Mean" variant="standard" onChange={(ev) => {
+            let mi = structuredClone(measurementInfo);
+            if (ev.target.value.length == 0) {
+              mi.O3Mean = null
+            } else {
+              mi.O3Mean = ev.target.value
+            }
+            setMeasurementInfo(mi)
+          }} />
+          <TextField label="SO2 Mean" variant="standard" onChange={(ev) => {
+            let mi = structuredClone(measurementInfo);
+            if (ev.target.value.length == 0) {
+              mi.So2Mean = null
+            } else {
+              mi.So2Mean = ev.target.value
+            }
+            setMeasurementInfo(mi)
+          }} />
+          <TextField label="CO Mean" variant="standard" onChange={(ev) => {
+            let mi = structuredClone(measurementInfo);
+            if (ev.target.value.length == 0) {
+              mi.CoMean = null
+            } else {
+              mi.CoMean = ev.target.value
+            }
+            setMeasurementInfo(mi)
+          }} />
+        </Stack>
+        <Button variant="contained" disabled={(!measurementInfo.SiteNum || !measurementInfo.No2Mean || !measurementInfo.O3Mean || !measurementInfo.So2Mean || !measurementInfo.CoMean ) ? true : false} onClick={() => {
+          (async() => {
+            try {
+              let header = new Headers({"Content-Type": "application/json"})
+              const response = await fetch("http://localhost:5000/api/add-measurement", {method: "POST", headers: header, body: JSON.stringify(measurementInfo)});
+              if (!response.ok) {
+                console.log("Server Response: invalid data")
+              }
+            } catch (error) {
+              console.log("Server Unreachable")
+            }
+          })();
+        }} >
+          Add Measurement
+        </Button>
+      </Stack>
+    </Box>
+  )
+}
+
 export default function Content({username}) {
   const [currentTab, setTab] = useState(0)
 
@@ -407,6 +476,9 @@ export default function Content({username}) {
     case 3:
       intendedContent = <SearchHistory username={username} />
       break
+    case 4:
+      intendedContent = <MEdit />
+      break
     default:
       intendedContent = <p>Shouldn't be here</p>
   }
@@ -419,6 +491,7 @@ export default function Content({username}) {
         <Tab label="Review" />
         <Tab label="Top Cities" />
         <Tab label="Search History" />
+        <Tab label="Add Measurements" />
       </Tabs>
       {intendedContent}
     </>

@@ -339,6 +339,30 @@ app.get("/api/cities", (req, res) => {
   });
 });
 
+app.post("/api/add-measurement", (req, res) => {
+  const {SiteNum: s, No2Mean: n, O3Mean: o, So2Mean: s2, CoMean: c} = req.body;
+
+  if (!s || !n || !o || !s2 || !c) {
+    return res.status(400).json({error: "Need valid values"});
+  }
+  db.query("select max(MeasurementID) + 1 as newID from Measurements",
+    (err, results) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else {
+          let newID = results[0].newID;
+          db.query("insert into Measurements values(?, ?, CURRENT_DATE, ?, ?, ?, ?);", [newID, s, n, o, s2, c], (err, result) => {
+            if (err) {
+              return res.status(500).json(err)
+            } else {
+              return res.status(200).json({error: "success"})
+            }
+          })
+        }
+    }
+  );
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
