@@ -26,20 +26,6 @@ function BestRated() {
     setStat2(false);
   }
 
-  (async() => {
-    try {
-      let response = await fetch("http://localhost:5000/api/getPollutantScore?" + new URLSearchParams({min: min, dateMin: "2000-01-01"}), {method: "GET"})
-      if (response.ok) {
-        const parsed = await response.json()
-        setTableView(parsed)
-      } else {
-        setStat(true)
-      }
-    } catch (error) {
-      setStat2(true)
-    }
-  })();
-
   const columns = [{
     field: "cname",
     headerName: "City",
@@ -70,18 +56,37 @@ function BestRated() {
   return (
     <Box sx={{justifyContent: "center", display: "flex"}}>
       <Stack sx={{width: 0.5}}>
-        <FormControl>
-          <FormLabel>Gender</FormLabel>
-            <RadioGroup value={min} defaultValue="C" onChange={(event) => {
-              setMin(event.target.value)
+        <Stack direction="row">
+          <FormControl sx={{display: "flex"}}>
+            <FormLabel>Minimum Pollutant Grade</FormLabel>
+            <RadioGroup defaultValue="C" onChange={(event) => {
+              setMin(event.target.value);
             }} row>
-            <FormControlLabel value="A" control={<Radio />} label="A" />
-            <FormControlLabel value="B" control={<Radio />} label="B" />
-            <FormControlLabel value="C" control={<Radio />} label="C" />
-            <FormControlLabel value="F" control={<Radio />} label="F" />
-          </RadioGroup>
-        </FormControl>
-        <DataGrid columns={columns} rows={tableView} getRowId={(row) => row.City } initialState={{
+              <FormControlLabel value="A" control={<Radio />} label="A" />
+              <FormControlLabel value="B" control={<Radio />} label="B" />
+              <FormControlLabel value="C" control={<Radio />} label="C" />
+              <FormControlLabel value="F" control={<Radio />} label="F" />
+            </RadioGroup>
+          </FormControl>
+          <Button color="inherit" onClick={() => {
+              (async() => {
+                try {
+                  let response = await fetch("http://localhost:5000/api/getPollutantScore?" + new URLSearchParams({min: min, dateMin: "2000-01-01"}), {method: "GET"})
+                  if (response.ok) {
+                    const parsed = await response.json()
+                    setTableView(parsed)
+                  } else {
+                    setStat(true)
+                  }
+                } catch (error) {
+                  setStat2(true)
+                }
+              })();
+            }}  variant="outlined" >
+            Find
+          </Button>
+        </Stack>
+        <DataGrid columns={columns} rows={tableView} getRowId={(row) => row.cname} initialState={{
           pagination: {
             paginationModel: {
               pageSize: 10,

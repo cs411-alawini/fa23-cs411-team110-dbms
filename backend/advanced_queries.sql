@@ -55,6 +55,7 @@ begin
     where MeasureDate > formattedDate and City in (select l.City from Location as l natural join Measurements group by l.City having count(MeasurementId) > 10);
 
     open cityIter;
+    drop table if exists CityGrades;
     create table CityGrades (cname varchar(25), no2grade varchar(2), o3grade varchar(2), so2grade varchar(2), cograde varchar(2));
     repeat
         fetch cityIter into CityTmp, no2avg, o3avg, so2avg, coavg;
@@ -66,28 +67,30 @@ begin
         else set no2grade = "A";
         end if;
 
+        set o3grade = "A";
         if (o3avg < allo3avg) then set o3grade = "A";
         elseif (o3avg > allo3avg and (o3avg - allo3avg) / allo3stddev < 1) then set o3grade = "B";
-        elseif (o3avg > allo3avg and (o3avg - allo3avg) / allo3stddev > -2) then set o3grade = "C";
+        elseif (o3avg > allo3avg and (o3avg - allo3avg) / allo3stddev < 2) then set o3grade = "C";
         elseif (o3avg > allo3avg) then set o3grade = "F";
         else set o3grade = "A";
         end if;
 
+        set so2grade = "A";
         if (so2avg < allso2avg) then set so2grade = "A";
         elseif (so2avg > allso2avg and (so2avg - allso2avg) / allso2stddev < 1) then set so2grade = "B";
-        elseif (so2avg > allso2avg and (so2avg - allso2avg) / allso2stddev > -2) then set so2grade = "D";
+        elseif (so2avg > allso2avg and (so2avg - allso2avg) / allso2stddev < 2) then set so2grade = "C";
         elseif (so2avg > allso2avg) then set so2grade = "F";
         else set so2avg = "A";
         end if;
 
+        set cograde = "A";
         if (coavg < allcoavg) then set cograde = "A";
         elseif (coavg > allcoavg and (coavg - allcoavg) / allcostddev < 1) then set cograde = "B";
-        elseif (coavg > allcoavg and (coavg - allcoavg) / allcostddev > -2) then set cograde = "D";
+        elseif (coavg > allcoavg and (coavg - allcoavg) / allcostddev < 2) then set cograde = "C";
         elseif (coavg > allcoavg) then set cograde = "F";
         else set cograde = "A";
         end if;
 
-        select cograde, so2grade, o3grade, no2grade;
         if (cograde <= cutoff and so2grade <= cutoff and o3grade <= cutoff and no2grade <= cutoff)
         then insert into CityGrades values (CityTmp, no2grade, o3grade, so2grade, cograde);
         end if;
@@ -95,7 +98,7 @@ begin
     end repeat;
     close cityIter;
 
-    select * from CityGrades limit 50;
+    select distinct * from CityGrades;
     drop table CityGrades;
 end //
 DELIMITER ;

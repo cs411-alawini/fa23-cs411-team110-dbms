@@ -156,8 +156,8 @@ app.post("/api/update-role", (req, res) => {
   );
 });
 
-app.get("/api/getPollutantScore", (req, res) => {
-  const { formattedDate, cutoff } = req.query;
+app.get('/api/getPollutantScore', (req, res) => {
+  const { min: cutoff, dateMin: formattedDate } = req.query;
   const sql = `
     CALL GetPollutantScore('${formattedDate}', '${cutoff}');
   `;
@@ -167,7 +167,7 @@ app.get("/api/getPollutantScore", (req, res) => {
       console.error("Error calling GetPollutantScore stored procedure:", error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
-    res.json(results);
+    res.json(results[0]);
   });
 });
 
