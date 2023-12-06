@@ -171,6 +171,64 @@ app.get("/api/getPollutantScore", (req, res) => {
   });
 });
 
+// Create new review and add to Reviews
+app.post("/api/add-review", (req, res) => {
+  const { username: u, review: r, location: l } = req.body; // Extract properties 'username' and 'review' from request body
+
+  if (u === undefined || r === undefined || l === undefined) {
+    return res.status(400).json("Failed.");
+  }
+
+  // Get timestamp and date to insert into database with review
+  const currTimestamp = new Date();
+  const currDate = currTimestamp.toISOString().split("T")[0]; // YYYY-MM-DD format
+
+  // QUERY 1 get userID associated with username u
+  db.query(
+    "SELECT UserID FROM Users WHERE Username = ?",
+    [u],
+    (error, results) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json("Internal server error");
+      }
+      if (results.length === 0) {
+        // Empty set returned
+        return res.status(404).json({ error: "Username not found" });
+      }
+      // Otherwise successfully found username
+      const ID = results[0].UserID;
+      db.query(
+        "SELECT SiteNum from Location WHERE City = ?",
+        [l],
+        (error, results) => {
+          if (error) {
+            console.error(error);
+            return res.status(500).json("Internal server error");
+          }
+          if (results.length === 0) {
+            // Empty set returned
+            return res.status(404).json({ error: "Location not found" });
+          }
+          // Otherwise successfully found username
+          const SiteNumb = results[0].SiteNum;
+          const thirdQuery =
+            "INSERT INTO Review(UserID, ReviewText, ReviewTimestamp, SiteNum, ReviewDate) Value(?,?,?,?,?)";
+          const values = [ID, r, currTimestamp, SiteNumb, currDate];
+          db.query(thirdQuery, values, (error, results) => {
+            if (error) {
+              console.error(error);
+              return res.status(500).json("Internal server error");
+            }
+            // Otherwise successful
+            res.json({ reviewAdd: " Review added successfully" });
+          });
+        }
+      );
+    }
+  );
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
