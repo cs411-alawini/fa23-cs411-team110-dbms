@@ -27,7 +27,7 @@ end //
 
 -- Gets the cities (with sample size > 10) above a certain pollutant score, then returns them in a comma separated list: City,No2,o3,so2,co
 
-create procedure if not exists GetPollutantScore(in formattedDate varchar(10), in cutoff varchar(2), out chosenCities varchar(5012))
+create procedure if not exists GetPollutantScore(in formattedDate varchar(10), in cutoff varchar(2))
 begin
     declare no2avg float; declare allno2avg float; declare allno2stddev float;
     declare o3avg float; declare allo3avg float; declare allo3stddev float;
@@ -54,7 +54,6 @@ begin
     from Location natural join Measurements
     where MeasureDate > formattedDate and City in (select l.City from Location as l natural join Measurements group by l.City having count(MeasurementId) > 10);
 
-    set chosenCities = "a";
     open cityIter;
     create table CityGrades (cname varchar(25), no2grade varchar(2), o3grade varchar(2), so2grade varchar(2), cograde varchar(2));
     repeat
@@ -96,7 +95,7 @@ begin
     end repeat;
     close cityIter;
 
-    select * from CityGrades;
+    select * from CityGrades limit 50;
     drop table CityGrades;
 end //
 DELIMITER ;
