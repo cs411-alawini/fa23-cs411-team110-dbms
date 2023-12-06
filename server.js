@@ -280,8 +280,33 @@ app.get("/api/location-reviews", (req, res) => {
       }
       if (results.length === 0) {
         // Empty set returned
-        return res
-          .status(200).json([])
+        return res.status(200).json([]);
+      }
+      res.json(results);
+    }
+  );
+});
+
+// Gets Reviews for a given location, returns username, reviewtext, date, and timestamp
+// NOTE: assume location is a city
+app.get("/api/get-searchhistory", (req, res) => {
+  const { username: u } = req.query; // Get from query
+  // Input validation
+  if (!u) {
+    return res.status(400).json({ error: "No User found" });
+  }
+
+  db.query(
+    "SELECT SearchQuery from SearchHistory natural join Users WHERE Username = ?",
+    [u],
+    (err, results) => {
+      if (err) {
+        console.error("Error executing Query:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      if (results.length === 0) {
+        // Empty set returned
+        return res.status(200).json([]);
       }
       res.json(results);
     }
@@ -289,17 +314,17 @@ app.get("/api/location-reviews", (req, res) => {
 });
 
 app.post("/api/delete-review", (req, res) => {
-  const {ReviewID: r} = req.body
+  const { ReviewID: r } = req.body;
 
   if (r === undefined) {
-    return res.status(400).json({error: "Need an ID to delete"})
+    return res.status(400).json({ error: "Need an ID to delete" });
   }
 
   db.query("delete from Review where ReviewID = ?", [r], (err, results) => {
     if (err) {
-      return res.status(500).json({error: "Internal Server Error"})
+      return res.status(500).json({ error: "Internal Server Error" });
     } else {
-      res.json({success: "Success"})
+      res.json({ success: "Success" });
     }
   });
 });
@@ -307,7 +332,7 @@ app.post("/api/delete-review", (req, res) => {
 app.get("/api/cities", (req, res) => {
   db.query("select distinct City from Location;", (err, results) => {
     if (err) {
-      return res.status(500).json({error: "Internal Server Error"});
+      return res.status(500).json({ error: "Internal Server Error" });
     } else {
       return res.json(results);
     }
