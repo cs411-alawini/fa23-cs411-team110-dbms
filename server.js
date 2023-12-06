@@ -281,7 +281,7 @@ app.get("/api/location-reviews", (req, res) => {
       if (results.length === 0) {
         // Empty set returned
         return res
-          .status(200)
+          .status(200).json([])
       }
       res.json(results);
     }

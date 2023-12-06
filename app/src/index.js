@@ -84,12 +84,7 @@ function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr, setUn }) {
             }} />
           </Grid>
           <Grid item xs={6}>
-            <Button color="inherit" onClick={() => loginOpen(false)} sx={{ width: 1 }}>
-              Cancel
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button color="inherit" sx={{ width: 1 }} onClick={() => {
+            <Button color="inherit" sx={{ width: 1 }} variant="contained" onClick={() => {
               loginOpen(false);
               (async () => {
                 try {
@@ -107,6 +102,11 @@ function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr, setUn }) {
               })();
             }}>
               Submit
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button color="inherit" onClick={() => loginOpen(false)} sx={{ width: 1 }}>
+              Cancel
             </Button>
           </Grid>
         </Grid>
