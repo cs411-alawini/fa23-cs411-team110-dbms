@@ -3,9 +3,24 @@ import './index.css';
 import AddIcon from '@mui/icons-material/Add';
 import {Button, Toolbar, Box, AppBar, IconButton, Typography, TextField, Snackbar, Alert, Tabs, Tab, Stack, Radio, RadioGroup, FormLabel, FormControl, FormControlLabel, Select, Grid, MenuItem, InputLabel, Card, CardContent, CircularProgress, Fab, Dialog, DialogTitle, DialogContent, DialogContentText, CardActions} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles';
 import GlobalStyles from '@mui/material/GlobalStyles';
+
+function HeaderBlock() {
+  const navigate = useNavigate()
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button color="inherit" onClick={() => navigate("/")}>Logout</Button>
+        </Toolbar>
+      </AppBar>
+    </Box>
+  );
+}
 
 function BestRated() {
   const [min, setMin] = useState('C')
@@ -370,6 +385,10 @@ function Reviews({username}) {
   )
 }
 
+function SearchHistory({username}) {
+
+}
+
 export default function Content({username}) {
   const [currentTab, setTab] = useState(0)
 
@@ -385,16 +404,21 @@ export default function Content({username}) {
     case 2:
       intendedContent = <BestRated />
       break
+    case 3:
+      intendedContent = <SearchHistory username={username} />
+      break
     default:
       intendedContent = <p>Shouldn't be here</p>
   }
 
   return (
     <>
+      <HeaderBlock />
       <Tabs value={currentTab} onChange={(ev, val) => setTab(val)} centered>
         <Tab label="Search"/>
         <Tab label="Review" />
         <Tab label="Top Cities" />
+        <Tab label="Search History" />
       </Tabs>
       {intendedContent}
     </>
