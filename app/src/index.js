@@ -9,15 +9,22 @@ import { DataGrid } from '@mui/x-data-grid';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <Router>
-    <Routes>
-      <Route path="/" element={<Page />} />
-      <Route path="/app" element={<App />} />
-    </Routes>
-  </Router>
+  <TopLevel />
 );
 
-function Page() {
+function TopLevel() {
+  const [un, setUn] = useState("")
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Page setUn={setUn} />} />
+        <Route path="/app" element={<App username={un} />} />
+      </Routes>
+    </Router>
+  )
+}
+
+function Page({setUn}) {
   const [loginBox, loginOpen] = useState(true); // Set loginOpen to true to open the login box by default
   const [loginErrState, setLoginErr] = useState(0);
   const navigate = useNavigate(); // Use useNavigate
@@ -40,7 +47,7 @@ function Page() {
   return (
     <>
       <HeaderBlock loginOpen={loginOpen} />
-      <LoginBox loginBox={loginBox} loginOpen={loginOpen} onLoginSuccess={handleLoginSuccess} setLoginErr={setLoginErr} />
+      <LoginBox loginBox={loginBox} loginOpen={loginOpen} onLoginSuccess={handleLoginSuccess} setLoginErr={setLoginErr} setUn={setUn} />
       <Snackbar open={loginErrState === 1} autoHideDuration={6000} onClose={handleClose}>
         <Alert severity="error">Login Attempt Failed</Alert>
       </Snackbar>
@@ -53,7 +60,7 @@ function Page() {
 
 
 
-function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr }) {
+function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr, setUn }) {
   const [loginInfo, infoChange] = useState({ username: "", password: "" });
 
   return (
@@ -90,6 +97,7 @@ function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr }) {
                   const response = await fetch("http://localhost:5000/api/login", { method: "POST", body: JSON.stringify(loginInfo), headers: header })
                   if (response.ok) {
                     onLoginSuccess(); // Call the onLoginSuccess callback on successful login
+                    setUn(loginInfo.username)
                   } else {
                     setLoginErr(1)
                   }

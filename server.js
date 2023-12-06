@@ -29,7 +29,7 @@ db.connect((err) => {
   }
 });
 
-app.get("/noMean", (req, res) => {
+app.get("/api/noMean", (req, res) => {
   db.query("CALL NoMean()", (error, results) => {
     if (error) {
       console.error("Error calling NoMean stored procedure:", error);
@@ -271,7 +271,7 @@ app.get("/api/location-reviews", (req, res) => {
   }
 
   db.query(
-    "SELECT Username, ReviewText, ReviewDate, ReviewTimestamp FROM Review join Users on Review.UserID = Users.UserID join Location on Review.SiteNum = Location.SiteNum WHERE City = ?",
+    "SELECT Username, ReviewID, ReviewText, ReviewDate, ReviewTimestamp FROM Review join Users on Review.UserID = Users.UserID join Location on Review.SiteNum = Location.SiteNum WHERE City = ?",
     [l],
     (err, results) => {
       if (err) {
@@ -281,12 +281,37 @@ app.get("/api/location-reviews", (req, res) => {
       if (results.length === 0) {
         // Empty set returned
         return res
-          .status(404)
-          .json({ error: "No reviews associated with that location" });
+          .status(200)
       }
-      res.json({ locReviews: results });
+      res.json(results);
     }
   );
+});
+
+app.post("/api/delete-review", (req, res) => {
+  const {ReviewID: r} = req.body
+
+  if (r === undefined) {
+    return res.status(400).json({error: "Need an ID to delete"})
+  }
+
+  db.query("delete from Review where ReviewID = ?", [r], (err, results) => {
+    if (err) {
+      return res.status(500).json({error: "Internal Server Error"})
+    } else {
+      res.json({success: "Success"})
+    }
+  });
+});
+
+app.get("/api/cities", (req, res) => {
+  db.query("select distinct City from Location;", (err, results) => {
+    if (err) {
+      return res.status(500).json({error: "Internal Server Error"});
+    } else {
+      return res.json(results);
+    }
+  });
 });
 
 app.listen(port, () => {
