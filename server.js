@@ -41,6 +41,27 @@ app.get('/noMean', (req, res) => {
     res.json({ data: mergedResults });
   });
 });
+
+app.get("/api/search", (req, res) => {
+  let {search: s} = req.query;
+
+  if (s === undefined) {
+    return res.status(301).json({error: "Malformed query"})
+  }
+
+  s = s.padEnd(s.length + 1, '%')
+  s = s.padStart(s.length + 1, '%')
+
+  db.query("SELECT City, avg(No2Mean) as No2Mean, avg(O3Mean) as O3Mean, avg(So2Mean) as So2Mean, avg(CoMean) as CoMean from Location natural join Measurements where City LIKE ? group by City;", [s], (qErr, qRes) => {
+    if (qErr) {
+      console.log(qErr)
+      return res.status(500).json({error: "Server Error"})
+    } else {
+      return res.status(200).json(qRes)
+    }
+  })
+})
+
 app.get("/api/userQueries", (req, res) => {
   const userQueriesQuery = "CALL UserQueries();";
 
