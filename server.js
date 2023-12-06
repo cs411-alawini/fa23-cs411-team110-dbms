@@ -127,11 +127,10 @@ app.get("/api/user-role", (req, res) => {
   );
 });
 
-app.get('/getPollutantScore', (req, res) => {
+app.get('/api/getPollutantScore', (req, res) => {
   const { formattedDate, cutoff } = req.query;
   const sql = `
-    CALL GetPollutantScore('${formattedDate}', '${cutoff}', @chosenCities);
-    SELECT @chosenCities AS chosenCities;
+    CALL GetPollutantScore('${formattedDate}', '${cutoff}');
   `;
 
   db.query(sql, (error, results) => {
@@ -139,11 +138,7 @@ app.get('/getPollutantScore', (req, res) => {
       console.error('Error calling GetPollutantScore stored procedure:', error);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-    const chosenCities = results[1][0].chosenCities;
-    if (!chosenCities) {
-      return res.status(404).json({ error: 'No data found' });
-    }
-    res.json({ chosenCities });
+    res.json(results);
   });
 });
 
