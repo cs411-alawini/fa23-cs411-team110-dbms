@@ -196,8 +196,11 @@ app.post("/api/add-review", (req, res) => {
         // Empty set returned
         return res.status(404).json({ error: "Username not found" });
       }
+
       // Otherwise successfully found username
       const ID = results[0].UserID;
+
+      // Second query looks for SiteNum based on given City name
       db.query(
         "SELECT SiteNum from Location WHERE City = ?",
         [l],
@@ -210,8 +213,12 @@ app.post("/api/add-review", (req, res) => {
             // Empty set returned
             return res.status(404).json({ error: "Location not found" });
           }
+
           // Otherwise successfully found username
+
           const SiteNumb = results[0].SiteNum;
+
+          // This query adds the actual review
           const thirdQuery =
             "INSERT INTO Review(UserID, ReviewText, ReviewTimestamp, SiteNum, ReviewDate) Value(?,?,?,?,?)";
           const values = [ID, r, currTimestamp, SiteNumb, currDate];
@@ -225,6 +232,31 @@ app.post("/api/add-review", (req, res) => {
           });
         }
       );
+    }
+  );
+});
+
+// Gets Reviews for a given user, returns reviewtext, date, city, state, and timestamp
+app.get("/api/user-reviews", (req, res) => {
+  const { username: u } = req.query; // Get from query
+  // Input validation
+  if (!u) {
+    return res.status(400).json({ error: "Username is required" });
+  }
+
+  db.query(
+    "SELECT ReviewText, ReviewDate, City, State, ReviewTimestamp FROM Review join Users on Review.UserID = Users.UserID join Location on Review.SiteNum = Location.SiteNum WHERE Username = ?",
+    [u],
+    (err, results) => {
+      if (err) {
+        console.error("Error executing UserRole Query:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      if (results.length === 0) {
+        // Empty set returned
+        return res.status(404).json({ error: "Username not found" });
+      }
+      res.json({ userReviews: results });
     }
   );
 });
