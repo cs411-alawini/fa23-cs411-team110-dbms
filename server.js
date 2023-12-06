@@ -156,7 +156,7 @@ app.post("/api/update-role", (req, res) => {
   );
 });
 
-app.get('/api/getPollutantScore', (req, res) => {
+app.get("/api/getPollutantScore", (req, res) => {
   const { min: cutoff, dateMin: formattedDate } = req.query;
   const sql = `
     CALL GetPollutantScore('${formattedDate}', '${cutoff}');
@@ -257,6 +257,34 @@ app.get("/api/user-reviews", (req, res) => {
         return res.status(404).json({ error: "Username not found" });
       }
       res.json({ userReviews: results });
+    }
+  );
+});
+
+// Gets Reviews for a given location, returns username, reviewtext, date, and timestamp
+// NOTE: assume location is a city
+app.get("/api/location-reviews", (req, res) => {
+  const { location: l } = req.query; // Get from query
+  // Input validation
+  if (!l) {
+    return res.status(400).json({ error: "Location is required" });
+  }
+
+  db.query(
+    "SELECT Username, ReviewText, ReviewDate, ReviewTimestamp FROM Review join Users on Review.UserID = Users.UserID join Location on Review.SiteNum = Location.SiteNum WHERE City = ?",
+    [l],
+    (err, results) => {
+      if (err) {
+        console.error("Error executing Query:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      if (results.length === 0) {
+        // Empty set returned
+        return res
+          .status(404)
+          .json({ error: "No reviews associated with that location" });
+      }
+      res.json({ locReviews: results });
     }
   );
 });
