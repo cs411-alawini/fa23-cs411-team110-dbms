@@ -3,13 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import MenuIcon from '@mui/icons-material/Menu';
-<<<<<<< HEAD
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom'; // Import useNavigate
-import { Dialog, Grid, Button, Toolbar, Box, AppBar, IconButton, Typography, TextField, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert } from '@mui/material';
-=======
 import {Dialog, Grid, Button, Toolbar, Box, AppBar, IconButton, Typography, TextField, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert, Tabs, Tab, Stack} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
->>>>>>> eb76f1c (Search function)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -44,12 +40,7 @@ function Page() {
   return (
     <>
       <HeaderBlock loginOpen={loginOpen} />
-<<<<<<< HEAD
-      <LoginBox loginOpen={loginOpen} onLoginSuccess={handleLoginSuccess} setLoginErr={setLoginErr} />
-=======
-      <LoginBox loginOpen={loginOpen} loginBox={loginBox} setErr={setLoginErr}/>
-      <Content />
->>>>>>> eb76f1c (Search function)
+      <LoginBox loginBox={loginBox} loginOpen={loginOpen} onLoginSuccess={handleLoginSuccess} setLoginErr={setLoginErr} />
       <Snackbar open={loginErrState === 1} autoHideDuration={6000} onClose={handleClose}>
         <Alert severity="error">Login Attempt Failed</Alert>
       </Snackbar>
@@ -60,23 +51,6 @@ function Page() {
   );
 }
 
-<<<<<<< HEAD
-function LoginBox({ loginOpen, onLoginSuccess, setLoginErr }) {
-  const [loginInfo, infoChange] = useState({ username: "", password: "" });
-
-  return (
-    <Dialog open={loginOpen}>
-      <DialogTitle> Login </DialogTitle>
-      <DialogContent>
-        <DialogContentText>Enter Credentials</DialogContentText>
-        <Grid container sx={{ width: 1 }} spacing={2}>
-          <Grid item xs={13}>
-            <TextField label="Username" id="username" type="text" sx={{ width: 1 }} onChange={(event) => {
-              let up = loginInfo
-              loginInfo.username = event.target.value
-              infoChange(loginInfo)
-            }} />
-=======
 function Searchable() {
   const [query, setQuery] = useState("")
   const [reqFailed, setStat] = useState(false)
@@ -192,51 +166,21 @@ function Content() {
   )
 }
 
-function LoginBox({loginOpen, loginBox, setErr}) {
-  const [loginInfo, infoChange] = useState({username: "", password: ""})
+function LoginBox({ loginBox, loginOpen, onLoginSuccess, setLoginErr }) {
+  const [loginInfo, infoChange] = useState({ username: "", password: "" });
 
   return (
     <Dialog open={loginBox}>
-        <DialogTitle> Login </DialogTitle>
-        <DialogContent>
-          <DialogContentText>Enter Credentials</DialogContentText>
-          <Grid container sx={{width: 1}} spacing={2}>
-            <Grid item xs={12}>
-              <TextField label="Username" id="username" type="text" sx={{width: 1}} onChange={(event) => {
-                let up = loginInfo
-                loginInfo.username = event.target.value
-                infoChange(loginInfo)
-              }} />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField label="Password" id="password" type="password" sx={{width: 1}} onChange={(event) => {
-                let up = loginInfo
-                loginInfo.password = event.target.value
-                infoChange(loginInfo)
-              }}/>
-            </Grid>
-            <Grid item xs={6}>
-              <Button color="inherit" onClick={() => loginOpen(false)} sx={{width: 1}}>
-                Cancel
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button color="inherit" sx={{width: 1}} onClick={() => {
-                loginOpen(false);
-                (async () => {
-                  let header = new Headers({"Content-Type": "application/json"})
-                  const response = await fetch("http://localhost:5000/api/login", {method: "POST", body: JSON.stringify(loginInfo), headers: header})
-                  if (response.ok) {
-                    setErr(2)
-                  } else {
-                    setErr(1)
-                  }
-                })();
-              }}>
-                Submit
-              </Button>
-            </Grid>
->>>>>>> eb76f1c (Search function)
+      <DialogTitle> Login </DialogTitle>
+      <DialogContent>
+        <DialogContentText>Enter Credentials</DialogContentText>
+        <Grid container sx={{ width: 1 }} spacing={2}>
+          <Grid item xs={12}>
+            <TextField label="Username" id="username" type="text" sx={{ width: 1 }} onChange={(event) => {
+              let up = loginInfo
+              loginInfo.username = event.target.value
+              infoChange(loginInfo)
+            }} />
           </Grid>
           <Grid item xs={12}>
             <TextField label="Password" id="password" type="password" sx={{ width: 1 }} onChange={(event) => {
